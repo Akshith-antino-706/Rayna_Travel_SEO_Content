@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogCard from '../components/BlogCard.astro';
+import SearchBar from '../components/SearchBar.tsx';
+import { getCollection } from 'astro:content';
+import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, CATEGORIES } from '../utils/constants';
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const latestPosts = sortedPosts.slice(0, 6);
+const cities = [...new Set(allPosts.map(p => p.data.city))];
+
+// Group by category for "Popular Travel Blogs" section
+const essentialsPosts = allPosts.filter(p => p.data.category === 'Essentials').slice(0, 4);
+const thingsToDoPostsArr = allPosts.filter(p => p.data.category === 'Things to Do').slice(0, 4);
+
+const searchData = allPosts.map(p => ({
+  title: p.data.title,
+  description: p.data.description,
+  slug: p.slug,
+  city: p.data.city,
+  category: p.data.category,
+  tags: p.data.tags,
+  readingTime: p.data.readingTime,
+}));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  url: SITE_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE_URL}/blog?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <!-- Hero — Figma: Large city image with overlay text -->
+  <section class="relative h-[420px] sm:h-[500px] overflow-hidden">
+    <img
+      src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&h=600&fit=crop&q=80"
+      alt="Dubai skyline at sunset"
+      class="absolute inset-0 w-full h-full object-cover"
+      loading="eager"
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
+    <div class="container-wide relative h-full flex flex-col justify-end pb-12">
+      <h1 class="text-white text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight max-w-2xl mb-3">
+        Explore Our<br />Travel Guides
+      </h1>
+      <p class="text-white/80 text-sm sm:text-base max-w-lg mb-6">
+        Expert guides, insider tips, and comprehensive itineraries for {cities.length}+ destinations worldwide.
+      </p>
+      <!-- Search -->
+      <div class="max-w-lg">
+        <SearchBar articles={searchData} client:load />
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore our Travel Blogs — Figma: horizontal scroll of small square cards -->
+  <section class="container-wide py-10">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="section-title">Explore our Travel Blogs</h2>
+      <a href="/blog" class="text-xs text-orange-500 font-medium hover:underline">View All</a>
+    </div>
+    <div class="scroll-row">
+      {latestPosts.map(post => (
+        <BlogCard
+          title={post.data.title}
+          description={post.data.description}
+          slug={post.slug}
+          city={post.data.city}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+          heroImage={post.data.heroImage}
+          readingTime={post.data.readingTime}
+          variant="compact"
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- Popular Travel Blogs — Figma: horizontal list of articles -->
+  <section class="container-wide py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="section-title">Popular Travel Blogs</h2>
+      <a href="/blog" class="text-xs text-orange-500 font-medium hover:underline">See All</a>
+    </div>
+    <div class="space-y-5">
+      {sortedPosts.slice(0, 5).map(post => (
+        <BlogCard
+          title={post.data.title}
+          description={post.data.description}
+          slug={post.slug}
+          city={post.data.city}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+          heroImage={post.data.heroImage}
+          readingTime={post.data.readingTime}
+          variant="horizontal"
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- City image grid — Figma: 5 columns of city photos -->
+  <section class="container-wide py-10">
+    <h2 class="section-title mb-1">Explore Travel Guides</h2>
+    <p class="section-subtitle">Comprehensive city guides covering attractions, food, hotels, and more</p>
+
+    <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+      {cities.map(city => {
+        const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+        const count = allPosts.filter(p => p.data.city === city).length;
+        return (
+          <a href={`/${citySlug}-travel-guide`} class="group relative rounded-xl overflow-hidden aspect-[4/3]">
+            <img
+              src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=225&fit=crop&q=70"
+              alt={city}
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-2 left-2.5 right-2">
+              <h3 class="text-white font-bold text-sm">{city}</h3>
+              <p class="text-white/70 text-[10px]">{count} articles</p>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- Popular Travel Guides (bottom section like Figma) -->
+  <section class="bg-gray-50 py-10">
+    <div class="container-wide">
+      <h2 class="section-title mb-1">Popular Travel Guides</h2>
+      <p class="section-subtitle">Our most popular guides chosen by travelers</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        {sortedPosts.slice(0, 4).map(post => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            slug={post.slug}
+            city={post.data.city}
+            category={post.data.category}
+            pubDate={post.data.pubDate}
+            heroImage={post.data.heroImage}
+            readingTime={post.data.readingTime}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Browse by Category — Figma: category row with icons -->
+  <section class="container-wide py-10">
+    <h2 class="section-title mb-4">Browse by Category</h2>
+    <div class="scroll-row gap-3">
+      {CATEGORIES.slice(0, 10).map(cat => (
+        <a
+          href={`/blog?category=${encodeURIComponent(cat.id)}`}
+          class="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-50 rounded-full border border-gray-100
+                 hover:bg-orange-50 hover:border-orange-200 transition-colors text-sm text-gray-600 hover:text-orange-600"
+        >
+          <span>{cat.icon}</span>
+          <span class="font-medium">{cat.label}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
