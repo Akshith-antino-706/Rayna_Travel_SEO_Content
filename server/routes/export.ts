@@ -6,7 +6,7 @@ import { analyzeContent } from '../lib/content-analyzer.js';
 
 const router = Router();
 
-const CONTENT_DIR = path.resolve(import.meta.dirname, '../../..', 'src/content/blog');
+const CONTENT_DIR = path.resolve(import.meta.dirname, '../../..', 'blog/src/content/blog');
 
 // GET /api/export/:city - export all articles for a city as JSON download
 router.get('/export/:city', (req, res) => {

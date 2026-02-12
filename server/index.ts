@@ -7,9 +7,9 @@ import exportRouter from './routes/export.js';
 import { listCityDirs, listArticleFiles } from './lib/markdown.js';
 
 const app = express();
-const PORT = 4322;
+const PORT = 4002;
 
-const CONTENT_DIR = path.resolve(import.meta.dirname, '../..', 'src/content/blog');
+const CONTENT_DIR = path.resolve(import.meta.dirname, '../..', 'blog/src/content/blog');
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));

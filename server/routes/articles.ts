@@ -8,7 +8,7 @@ import { marked } from 'marked';
 
 const router = Router();
 
-const CONTENT_DIR = path.resolve(import.meta.dirname, '../../..', 'src/content/blog');
+const CONTENT_DIR = path.resolve(import.meta.dirname, '../../..', 'blog/src/content/blog');
 
 // GET /api/cities - list all cities with article counts
 router.get('/cities', (_req, res) => {
