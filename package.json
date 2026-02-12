@@ -10,8 +10,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "generate": "tsx scripts/generate-content.ts",
+    "generate:dry": "tsx scripts/generate-content.ts --dry-run",
+    "generate:resume": "tsx scripts/generate-content.ts --resume",
     "generate:images": "tsx scripts/generate-images.ts",
-    "generate:all": "tsx scripts/generate-images.ts && tsx scripts/generate-content.ts"
+    "generate:all": "tsx scripts/generate-images.ts && tsx scripts/generate-content.ts",
+    "dashboard": "cd dashboard && npm run dev"
   },
   "dependencies": {
     "astro": "^5.2.0",

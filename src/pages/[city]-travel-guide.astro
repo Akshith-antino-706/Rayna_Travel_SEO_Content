@@ -118,35 +118,72 @@ const breadcrumbLd = {
   </section>
 
   <!-- Content by Category -->
-  <div class="container-wide py-12">
-    {postsByCategory.map(cat => (
-      <section
-        id={cat.id.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}
-        class="mb-16 scroll-mt-32"
-      >
+  {postsByCategory.map((cat, index) => (
+    <section
+      id={cat.id.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}
+      class:list={[
+        'py-12 scroll-mt-32',
+        index % 2 === 1 ? 'bg-gray-50' : 'bg-white',
+      ]}
+    >
+      <div class="container-wide">
+        {index > 0 && (
+          <div class="border-t border-gray-100 mb-8"></div>
+        )}
+
         <div class="flex items-center gap-3 mb-6">
           <span class="text-2xl">{cat.icon}</span>
           <h2 class="font-heading text-2xl font-bold text-gray-900">{cat.label}</h2>
           <span class="badge-category">{cat.posts.length} articles</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cat.posts.map(post => (
+        {index === 0 && cat.posts.length >= 4 ? (
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <BlogCard
-              title={post.data.title}
-              description={post.data.description}
-              slug={post.slug}
-              city={post.data.city}
-              category={post.data.category}
-              pubDate={post.data.pubDate}
-              heroImage={post.data.heroImage}
-              readingTime={post.data.readingTime}
+              title={cat.posts[0].data.title}
+              description={cat.posts[0].data.description}
+              slug={cat.posts[0].slug}
+              city={cat.posts[0].data.city}
+              category={cat.posts[0].data.category}
+              pubDate={cat.posts[0].data.pubDate}
+              heroImage={cat.posts[0].data.heroImage}
+              readingTime={cat.posts[0].data.readingTime}
+              featured={true}
             />
-          ))}
-        </div>
-      </section>
-    ))}
-  </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {cat.posts.slice(1).map(post => (
+                <BlogCard
+                  title={post.data.title}
+                  description={post.data.description}
+                  slug={post.slug}
+                  city={post.data.city}
+                  category={post.data.category}
+                  pubDate={post.data.pubDate}
+                  heroImage={post.data.heroImage}
+                  readingTime={post.data.readingTime}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cat.posts.map(post => (
+              <BlogCard
+                title={post.data.title}
+                description={post.data.description}
+                slug={post.slug}
+                city={post.data.city}
+                category={post.data.category}
+                pubDate={post.data.pubDate}
+                heroImage={post.data.heroImage}
+                readingTime={post.data.readingTime}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  ))}
 
   <!-- CTA -->
   <section class="bg-orange-50 py-12">
